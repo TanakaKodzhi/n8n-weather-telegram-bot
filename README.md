@@ -10,13 +10,15 @@
 * **Богатая информационная модель**: Расчет и отображение дневных и ночных экстремумов температур, диапазона ощущаемой температуры, скорости ветра, порывов, а также раздельных показателей дождя, снегопада и суммарных часов осадков.
 * **Чистый UI в Telegram**: Генерация структурированного сообщения с поддержкой HTML-разметки и эмодзи-индикаторов.
 
+![Структура сообщения в telegram](Telegram_message.png)
+
 ## 🛠️ Архитектура и стек (Tech Stack)
 
 * **n8n** (Self-hosted / Cloud) — оркестрация сценария, тайминг выполнения, обработка потоков данных.
 * **Open-Meteo API** — внешний REST API поставщика метеорологических данных.
 * **Telegram Bot API** — доставка сгенерированного отчета конечному пользователю.
   
-![Схема воркфлоу](Как в выглядит автоматизация в n8n.png)
+![Схема воркфлоу](workflow_schema.png)
 
 ### Структура нод в сценарии:
 1. `Schedule Trigger` — инициализация запуска цепочки по расписанию.
@@ -35,11 +37,12 @@
 ### Пошаговое развертывание
 
 1. **Импорт сценария**:
-   * Скопируйте содержимое файла `Прогноз_погоды_Шаблон_готовый.json`.
-   * В веб-интерфейсе n8n нажмите **Workflows** -> **Import from File / Clipboard** и вставьте JSON-код.
+   * Скачайте готовый файл с json схемой `Weather_Forecast_json.json`.
+   * В веб-интерфейсе n8n нажмите **Workflows** -> **Import from File / Clipboard** и выберите данный файл.
 
 2. **Настройка геоданных (HTTP Request)**:
    * Откройте ноду `HTTP Request`.
+   * Зайдите на сайт https://open-meteo.com/. Выберите нужный регион для прогноза погоды, а также какие конкретно данные погоды вы хотите получать в сводке (в случае, если нужных вам параметров нет в готовом json файле)
    * В поле **URL** скорректируйте параметры `latitude` и `longitude` под ваш целевой регион:
      ```text
      [https://api.open-meteo.com/v1/forecast?latitude=YOUR_LAT&longitude=YOUR_LON&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,rain_sum,showers_sum,precipitation_sum,snowfall_sum,precipitation_hours,wind_speed_10m_max,wind_gusts_10m_max&timezone=auto](https://api.open-meteo.com/v1/forecast?latitude=YOUR_LAT&longitude=YOUR_LON&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,rain_sum,showers_sum,precipitation_sum,snowfall_sum,precipitation_hours,wind_speed_10m_max,wind_gusts_10m_max&timezone=auto)
@@ -74,4 +77,4 @@
 
 * **Автор проекта**: Танака Коджи
 * **Telegram-канал**: [Build -> Запуск (@TanakaKodzhi)](https://t.me/tanaka_dev)
-* **GitHub Repository**: [Шаблоны и воркфлоу n8n](https://github.com)
+* **Telegram пост с данной автоматизацией**: https://t.me/tanaka_dev/35
