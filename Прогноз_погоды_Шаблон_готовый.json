@@ -1,0 +1,195 @@
+{
+  "name": "Прогноз погоды (Шаблон)",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "b8a9742f-6eec-4044-adab-b5b6c9c02bad",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.open-meteo.com/v1/forecast?latitude=51.5074&longitude=-0.1278&daily=temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,rain_sum,showers_sum,precipitation_sum,snowfall_sum,precipitation_hours,wind_speed_10m_max,wind_gusts_10m_max&timezone=auto",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "4674ab46-fc39-4f07-8598-63f04c9013cf",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8467774c-2110-446a-9208-5b3a9d9fb414",
+              "name": "Region",
+              "value": "={{ $json.timezone }}",
+              "type": "string"
+            },
+            {
+              "id": "11e6abeb-31c7-43be-8c1c-6cb9c6ba3c8c",
+              "name": "Today_weather",
+              "value": "={{ $json.daily.time[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "9cd6d4f4-28b4-4911-835a-a21a8cda922f",
+              "name": "temp_max",
+              "value": "={{ $json.daily.temperature_2m_max[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "890ede85-73c5-41f7-bbf2-5f6eb05ee8c1",
+              "name": "temp_min",
+              "value": "={{ $json.daily.temperature_2m_min[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "9ee47310-8233-4908-8c44-b61bb9dfa19c",
+              "name": "snowfall_sum",
+              "value": "={{ $json.daily.snowfall_sum[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "7d4d9d0f-54ce-43e8-89d4-ce2c5d474034",
+              "name": "feels_like_min",
+              "value": "={{ $json.daily.apparent_temperature_min[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "563f7188-11a4-40a2-9a30-61977676cfc0",
+              "name": "feels_like_max",
+              "value": "={{ $json.daily.apparent_temperature_max[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "fe98a953-6d3f-4b83-8b03-945bca89b708",
+              "name": "rain_sum",
+              "value": "={{ $json.daily.rain_sum[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "c52db68e-486c-4784-83b6-c1cf1feeab84",
+              "name": "windy_speed_10m_max",
+              "value": "={{ $json.daily.wind_speed_10m_max[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "be647548-8cff-429c-b314-f1404f22e03c",
+              "name": "wind_gusts",
+              "value": "={{ $json.daily.wind_gusts_10m_max[0] }}",
+              "type": "number"
+            },
+            {
+              "id": "39a6bb3f-c483-4c23-9475-5dfbe2e79144",
+              "name": "precipitation",
+              "value": "={{ $json.daily.precipitation_hours[0] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "6afefe60-110d-4ae2-bfd6-d5a6e42676d0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "YOUR_CHAT_ID",
+        "text": "=<b>🔔 Прогноз погоды на сегодня</b>\n📍 [Ваш Город] | 📅 <i>{{ $json.Today_weather }}</i>\n\n<b>🌡️ Температура воздуха:</b>\n• 🏙️ Днём: {{ $json.temp_max }}°C\n• 🌃 Ночью: {{ $json.temp_min }}°C\n\n<b>🧥 По ощущениям:</b>\n• От {{ $json.feels_like_min }}°C до {{ $json.feels_like_max }}°C\n\n<b>🍃 Ветер:</b> \n• Скорость: {{ $json.windy_speed_10m_max }} км/ч (порывы до {{ $json.wind_gusts }} км/ч)\n\n<b>🌧️ Осадки:</b>\n• Дождь: {{ $json.rain_sum }} мм\n• Снег: {{ $json.snowfall_sum }} см\n• Осадки продлятся: {{ $json.precipitation }} ч\n\n<i>Хорошего и продуктивного дня!</i> 😊",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "HTML"
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "d75be015-1c88-431f-92fe-9ee0ac4d1a87",
+      "name": "Send a text message"
+    },
+    {
+      "parameters": {
+        "content": "### ⚙️ Инструкция по настройке шаблона:\n1. В **HTTP Request** укажите ваши широту (`latitude`) и долготу (`longitude`).\n2. В **Send a text message** подключите учетную запись вашего Telegram-бота.\n3. Замените `YOUR_CHAT_ID` на ID вашего чата или канала.\n4. Замените текст `[Ваш Город]` на название вашего населенного пункта.",
+        "height": 260,
+        "width": 380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        -320
+      ],
+      "id": "e938910d-2b49-4322-9014-941da7d59b32",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "tags": []
+}
